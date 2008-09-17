@@ -1,0 +1,9 @@
+* Better docs
+* More tests
+* More flexibility about where to get the Tangram schema / db connection from.
+* Ability to connect if needed..
+* Actually get my live apps using this rather than my awful bodge.
+* Test session saves / restores.
+* Mock testing.
+* Custom lookups / filters
+* Role / ACL support
