@@ -24,5 +24,6 @@ no_index:
 requires:
   Catalyst::Plugin::Authentication: 0.10001
   Catalyst::Runtime: 5.70
+  Class::Accessor::Fast: 0
   Tangram: 2.09
-version: 0.001
+version: 0.002

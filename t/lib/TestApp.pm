@@ -18,7 +18,7 @@ __PACKAGE__->config(
                 },
                 store => {
                     class => 'Tangram',
-                    user_class => 'Users',
+                    tangram_user_class => 'Users',
                 },
             },
         },

@@ -6,6 +6,7 @@ all_from 'lib/Catalyst/Authentication/Store/Tangram.pm';
 requires 'Catalyst::Plugin::Authentication' => '0.10001';
 requires 'Catalyst::Runtime' => '5.70';
 requires 'Tangram' => '2.09';
+requires 'Class::Accessor::Fast';
 
 build_requires 'Class::C3';
 build_requires 'File::Temp';

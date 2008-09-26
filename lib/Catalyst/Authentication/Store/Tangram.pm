@@ -5,26 +5,27 @@ use base qw/Class::Accessor::Fast/;
 use Scalar::Util qw/blessed/;
 use Catalyst::Authentication::Store::Tangram::User;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/tangram_model user_class storage_method/);
+    __PACKAGE__->mk_accessors(qw/tangram_model tangram_user_class user_class storage_method/);
 }
 
 sub new {
     my ($class, $config, $app, $realm) = @_;
-    die("user_class key must be defined in config")
-        unless $config->{user_class};
+    die("tangram_user_class key must be defined in config")
+        unless $config->{tangram_user_class};
     $config->{tangram_model} ||= 'Tangram';
     $config->{storage_method} ||= 'storage';
+    $config->{user_class} ||= __PACKAGE__ . '::User';
     bless { %$config }, $class;
 }
 
 sub find_user {
     my ($self, $authinfo, $c) = @_;
-    my $user_class = $self->user_class;
+    my $tangram_class = $self->tangram_user_class;
     my $storage = $c->model($self->tangram_model)->${\$self->storage_method}();
-    my $remote = $storage->remote($user_class);
+    my $remote = $storage->remote($tangram_class);
     my $filter;
     foreach my $key (keys %$authinfo) {
         $filter = (defined $filter
@@ -34,7 +35,7 @@ sub find_user {
     }
     my @result = $storage->select($remote, filter => $filter);
     if (@result) {
-        return Catalyst::Authentication::Store::Tangram::User->new($storage, $result[0]);
+        return $self->user_class->new($storage, $result[0]);
     }
     return;
 }
@@ -46,11 +47,11 @@ sub for_session {
 
 sub from_session {
     my ($self, $id) = @_;
-    my $user_class = $self->user_class;
+    my $tangram_class = $self->tangram_user_class;
     my $tangram_user;
-    eval { $tangram_user = $user_class->load($id) }; # FIXME - does this work in regular Tangram?
+    eval { $tangram_user = $tangram_class->load($id) }; # FIXME - does this work in regular Tangram?
     return if $@ or !$tangram_user;
-    return Catalyst::Authentication::Store::Tangram::User->new($tangram_user);
+    return $self->user_class->new($tangram_user);
 }
 
 sub user_supports {
@@ -81,7 +82,7 @@ Catalyst::Authentication::Store::Tangram - A storage class for Catalyst authenti
                 },
                 store => {
                     class => 'Tangram',
-                    user_class => 'Users',
+                    tangram_user_class => 'Users',
                     tangram_model => 'Tangram',
                     storage_method => 'storage', # $c->model('Tangram')->storage                
                 },
@@ -135,7 +136,7 @@ The Tangram storage module has several configuration options
 
 Class is part of the core L<Catalyst::Plugin::Authentication> module, it contains the class name of the store to be used.
 
-=item user_class
+=item tangram_user_class
 
 Contains the class name of the class persisted in your Tangram schema to use as the source for user information. 
 This config item is B<REQUIRED>. This class name is used to get a Tangram remote object when constructing a search
@@ -152,6 +153,12 @@ instance to restore the user from.
 
 Contains the method to call on the I<tangram_model> to retrieve the instance of L<Tangram::Storage> which users are
 looked up from.
+
+=item user_class
+
+Contains the class which the user object is blessed into. This class is usually L<Catalyst::Authentication::Store::Tangram::User>,
+but you can sub-class that class and have your subclass used instead by setting this configuration parameter. You will not need to
+use this setting unless you are doing unusual things with the user class.
 
 =back
 
@@ -189,7 +196,7 @@ With thanks to state51, my employer, for giving me the time to work on this.
 
 =head1 BUGS
 
-No known bugs. However this module could be significantly more feature filled.
+All complex software has bugs, and I'm sure that this module is no exception.
 
 Please report bugs through the rt.cpan.org bug tracker.
 
@@ -197,4 +204,10 @@ Please report bugs through the rt.cpan.org bug tracker.
 
 Copyright (c) 2008, state51. Some rights reserved.
 
-This module is free software; you can use, redistribute, and modify it under the same terms as Perl 5.8.x.
+=head1 LICENSE
+
+This module is free software; you can use, redistribute, and modify it 
+under the same terms as Perl 5.8.x.
+
+=cut
+
