@@ -1,3 +1,15 @@
+0.003  2008-10-02
+  - Make sure the user returned isa Catalyst::Authentication::User
+    so that it's compatible with Catalyst::Plugin::Authorization::Roles
+  - Add get_object to the user class to get the tangram object back.
+  - Add AUTOLOAD delegation, so methods not found on the user object
+    will be delegated to the Tangram object it proxies.
+  - Overload stringification on the user object, stringifying to the
+    tangram ID
+  - Add roles compatibility / configuration settings + test
+  - Fix reporting of supported features
+  - Add POD spelling, strictness and warnings test
+
 0.002  2008-09-26
   - Change user_class config parameter => tangram_user_class
   - Add a user_class config parameter which can be

@@ -10,12 +10,11 @@ use base 'Catalyst::Controller';
 sub default : Private { 
     my ($self, $c) = @_;
     my $body = '';
-    $body .= "Authenticated:" 
-        if $c->authenticate({
-            username => 'testuser',
-            password => 'testpass',
-        });
-    $body .= $c->user->id;
+    if ($c->authenticate({ username => 'testuser', password => 'testpass' })) {
+        $body .= "Authenticated:";
+        $body .= $c->user->id;
+        $body .= ". Roles: " . join(', ', $c->user->roles);
+    }
     $c->res->body($body);
 }
 

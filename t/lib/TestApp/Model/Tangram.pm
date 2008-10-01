@@ -3,7 +3,19 @@ use strict;
 use warnings;
 use base qw/Class::Accessor/;
 
-__PACKAGE__->mk_accessors(qw/username password/);
+__PACKAGE__->mk_accessors(qw/username password groups/);
+
+sub new {
+    my ($class, %p) = @_;
+    bless { %p }, $class;
+}
+
+package Roles;
+use strict;
+use warnings;
+use base qw/Class::Accessor/;
+
+__PACKAGE__->mk_accessors(qw/name/);
 
 sub new {
     my ($class, %p) = @_;
@@ -18,6 +30,7 @@ use DBI;
 use Tangram::Relational;
 use Tangram::Storage;
 use Tangram::Type::String;
+use Tangram::Type::Array::FromMany;
 use Class::C3;
 use File::Temp qw/tempfile/;
 
@@ -38,6 +51,12 @@ sub COMPONENT {
             Users => {
                 fields => {
                     string => [qw/username password/],
+                    array  => { groups => 'Roles' },
+                },
+            },
+            Roles => {
+                fields => {
+                    string => [qw/name/],
                 },
             },
         ],
@@ -47,8 +66,9 @@ sub COMPONENT {
     $self->{storage} = Tangram::Relational->connect(
         $self->schema, @dsn
     );
-    my $test_user = Users->new(username => 'testuser', password => 'testpass');
-    $self->storage->insert($test_user);
+    my @groups = map { Roles->new(name => $_) } qw/role1 role2 role3/;
+    my $test_user = Users->new(username => 'testuser', password => 'testpass', groups => \@groups);
+    $self->storage->insert($test_user); # Cascade inserts all the groups too.
     return $self;
 }
 

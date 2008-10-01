@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-
 use strict;
 use warnings;
 use Test::More tests => 3;
@@ -15,5 +14,5 @@ use ok 'TestApp';
 use Test::WWW::Mechanize::Catalyst 'TestApp';
 my $mech = Test::WWW::Mechanize::Catalyst->new;
 $mech->get_ok('http://localhost/', 'get main page');
-$mech->content_like(qr/^Authenticated:\d+$/i, 'see if it has our text');
+$mech->content_like(qr/^Authenticated:\d+\. Roles: role1, role2, role3$/i, 'see if it has our text');
 

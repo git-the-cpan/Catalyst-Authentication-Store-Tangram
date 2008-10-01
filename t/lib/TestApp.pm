@@ -19,6 +19,9 @@ __PACKAGE__->config(
                 store => {
                     class => 'Tangram',
                     tangram_user_class => 'Users',
+                    use_roles => 1,
+                    role_relation => 'groups',
+                    role_name_field => 'name',
                 },
             },
         },

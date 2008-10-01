@@ -5,11 +5,24 @@ use base qw/Class::Accessor::Fast/;
 use Scalar::Util qw/blessed/;
 use Catalyst::Authentication::Store::Tangram::User;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/tangram_model tangram_user_class user_class storage_method/);
+    __PACKAGE__->mk_accessors(qw/
+        tangram_model 
+        tangram_user_class 
+        user_class 
+        storage_method 
+        use_roles
+        role_relation
+        role_name_field
+    /);
 }
+
+sub _get_storage {
+    my ($self, $c) = @_;
+    $c->model($self->tangram_model)->${\$self->storage_method}();
+}    
 
 sub new {
     my ($class, $config, $app, $realm) = @_;
@@ -18,13 +31,19 @@ sub new {
     $config->{tangram_model} ||= 'Tangram';
     $config->{storage_method} ||= 'storage';
     $config->{user_class} ||= __PACKAGE__ . '::User';
+    $config->{use_roles} ||= 0;
+    $config->{use_roles} = 0 if $config->{use_roles} =~ /false/i;
+    die("No role_relation config option set, cannot use roles") 
+        if (!length($config->{role_relation}) && $config->{use_roles});
+    die("No role_name_field config option set, cannot use roles")
+        if (!length($config->{role_name_field}) && $config->{use_roles});
     bless { %$config }, $class;
 }
 
 sub find_user {
     my ($self, $authinfo, $c) = @_;
     my $tangram_class = $self->tangram_user_class;
-    my $storage = $c->model($self->tangram_model)->${\$self->storage_method}();
+    my $storage = $self->_get_storage($c);
     my $remote = $storage->remote($tangram_class);
     my $filter;
     foreach my $key (keys %$authinfo) {
@@ -35,7 +54,7 @@ sub find_user {
     }
     my @result = $storage->select($remote, filter => $filter);
     if (@result) {
-        return $self->user_class->new($storage, $result[0]);
+        return $self->user_class->new($storage, $result[0], $self);
     }
     return;
 }
@@ -49,14 +68,23 @@ sub from_session {
     my ($self, $id) = @_;
     my $tangram_class = $self->tangram_user_class;
     my $tangram_user;
-    eval { $tangram_user = $tangram_class->load($id) }; # FIXME - does this work in regular Tangram?
+    eval { $tangram_user = $self->_get_storage->load($id) };
     return if $@ or !$tangram_user;
-    return $self->user_class->new($tangram_user);
+    return $self->user_class->new($self->_get_storage, $tangram_user, $self); # FIXME - $c arg for get_storage.
 }
 
 sub user_supports {
-    my ($class) = @_;
-    return;
+    my $class = shift;
+
+    return Catalyst::Authentication::Store::Tangram::User->supports(@_);
+}
+
+sub lookup_roles {
+    my ($self, $user_ob) = @_;
+    return undef unless $self->use_roles;
+
+    return map { $_->${\$self->role_name_field} }
+        @{ $user_ob->_tangram->${\$self->role_relation}() };    
 }
 
 1;
@@ -107,7 +135,7 @@ information stored in a database via L<Tangram>.
 
 =head1 CONFIGURATION
 
-The Tangram authentication store is activated by setting the store config's class element 
+The Tangram authentication store is activated by setting the store configuration class element 
 to I<Tangram> as shown above. See the L<Catalyst::Plugin::Authentication> documentation 
 for more details on configuring the store.
 
@@ -160,6 +188,20 @@ Contains the class which the user object is blessed into. This class is usually 
 but you can sub-class that class and have your subclass used instead by setting this configuration parameter. You will not need to
 use this setting unless you are doing unusual things with the user class.
 
+=item use_roles
+
+Activates role support if set to '1' 
+ 
+=item role_relation
+
+The name of the method to call on your Tangram user object to retrieve an array of roles for this user.
+
+This field will probably be a L<Tangram::Type::Array::FromMany>, or a L<Tangram::Type::Array::FromOne>..
+
+=item role_name_field
+
+The name of the field to retrieve the name of the role from on the Tangram class representing roles.
+
 =back
 
 =head1 METHODS
@@ -171,8 +213,8 @@ Simple constructor, returns a blessed reference to the store object instance.
 =head2 find_user ( $authinfo, $c )
 
 I<$auth_info> is expected to be a hash with the keys being field names on your Tangram user object, and the values
-being what those fields should be matched against. A tangram select will be built from the supplied auth info, and this
-select is used to retrieve the user from Tangram.
+being what those fields should be matched against. A tangram select will be built from the supplied authentication 
+information, and this select is used to retrieve the user from Tangram.
 
 =head2 for_session ( $c, $user )
 
@@ -184,9 +226,20 @@ to restore the user.
 This method is called whenever a user is being restored from the session. $frozenuser contains the Tangram ID of
 the user to restore.
 
-=head2 user_supports ( $feature, ... )
+=head2 user_supports
 
-Returns false.
+Delegates to the L<Catalyst::Authentication::Store::Tangram::User->supports|Catalyst::Authentication::Store::Tangram::User#supports> 
+method.
+
+=head2 lookup_roles
+
+Returns a list of roles that this user is authorised for.
+
+=head1 SEE ALSO
+
+L<Catalyst::Authentication::Store::Tangram::User>,
+L<Catalyst::Plugin::Authentication>,
+L<Catalyst::Authentication::Store>
 
 =head1 AUTHOR
 

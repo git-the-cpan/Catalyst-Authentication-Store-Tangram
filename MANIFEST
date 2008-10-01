@@ -24,4 +24,7 @@ t/lib/TestApp/Model/Tangram.pm
 t/live-test.t
 t/pod-coverage.t
 t/pod.t
+t/pod_spelling.t
+t/strict.t
+t/warnings.t
 Todo

@@ -6,4 +6,5 @@
 * Test session saves / restores.
 * Mock testing.
 * Custom lookups / filters
-* Role / ACL support
+* Test autoload
+* Test stringification
