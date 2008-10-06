@@ -1,3 +1,12 @@
+0.004  2008-10-06
+  - Make sure classes specified in tangram_user_class and user_class are
+    loaded when constructing.
+  - Make role_name_field optional, for in the case where you have a method
+    which returns a plain text list of roles, rather than a collection of
+    Tangram objects.
+  - Steal the user_results_filter idea from 
+    Catalyst::Authentication::Store::LDAP
+
 0.003  2008-10-02
   - Make sure the user returned isa Catalyst::Authentication::User
     so that it's compatible with Catalyst::Plugin::Authorization::Roles

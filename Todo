@@ -8,3 +8,7 @@
 * Custom lookups / filters
 * Test autoload
 * Test stringification
+* Test user_results_filter
+* Test returning text list of roles.
+* Make it throw a hard error (rather than a warning) if you try to search
+  the user by an unknown field. 

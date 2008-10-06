@@ -4,8 +4,9 @@ use warnings;
 use base qw/Class::Accessor::Fast/;
 use Scalar::Util qw/blessed/;
 use Catalyst::Authentication::Store::Tangram::User;
+use Catalyst::Utils ();
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 BEGIN {
     __PACKAGE__->mk_accessors(qw/
@@ -16,6 +17,7 @@ BEGIN {
         use_roles
         role_relation
         role_name_field
+        user_results_filter
     /);
 }
 
@@ -35,8 +37,10 @@ sub new {
     $config->{use_roles} = 0 if $config->{use_roles} =~ /false/i;
     die("No role_relation config option set, cannot use roles") 
         if (!length($config->{role_relation}) && $config->{use_roles});
-    die("No role_name_field config option set, cannot use roles")
-        if (!length($config->{role_name_field}) && $config->{use_roles});
+     
+    Catalyst::Utils::ensure_class_loaded($config->{tangram_user_class});
+    Catalyst::Utils::ensure_class_loaded($config->{user_class});
+
     bless { %$config }, $class;
 }
 
@@ -47,12 +51,17 @@ sub find_user {
     my $remote = $storage->remote($tangram_class);
     my $filter;
     foreach my $key (keys %$authinfo) {
-        $filter = (defined $filter
-            ? ($filter & $remote->{$key} eq $authinfo->{$key})
-            : $remote->{$key} eq $authinfo->{$key}
-        );
+        if (defined $filter) {
+            $filter = $filter & $remote->{$key} eq $authinfo->{$key};
+        }
+        else {
+            $filter = $remote->{$key} eq $authinfo->{$key};
+        }
     }
     my @result = $storage->select($remote, filter => $filter);
+    if ($self->user_results_filter) {
+        @result = grep { $self->user_results_filter->($_) } @result;
+    } 
     if (@result) {
         return $self->user_class->new($storage, $result[0], $self);
     }
@@ -83,8 +92,13 @@ sub lookup_roles {
     my ($self, $user_ob) = @_;
     return undef unless $self->use_roles;
 
-    return map { $_->${\$self->role_name_field} }
-        @{ $user_ob->_tangram->${\$self->role_relation}() };    
+    my @roles = @{ $user_ob->${\$self->role_relation}() };
+    if ($self->role_name_field) {
+        return map { $_->${\$self->role_name_field}() } @roles;
+    }
+    else {
+        return @roles;
+    }
 }
 
 1;
@@ -112,7 +126,9 @@ Catalyst::Authentication::Store::Tangram - A storage class for Catalyst authenti
                     class => 'Tangram',
                     tangram_user_class => 'Users',
                     tangram_model => 'Tangram',
-                    storage_method => 'storage', # $c->model('Tangram')->storage                
+                    storage_method => 'storage', # $c->model('Tangram')->storage                    use_roles => 1,
+                    role_relation -> 'authority',
+                    role_name_field => 'name',
                 },
             },
         },
@@ -196,11 +212,12 @@ Activates role support if set to '1'
 
 The name of the method to call on your Tangram user object to retrieve an array of roles for this user.
 
-This field will probably be a L<Tangram::Type::Array::FromMany>, or a L<Tangram::Type::Array::FromOne>..
+This field may be a L<Tangram::Type::Array::FromMany>, or a L<Tangram::Type::Array::FromOne> (in which case you will also need to use I<role_name_field>), or it may be your own function which returns a list of roles..
 
 =item role_name_field
 
-The name of the field to retrieve the name of the role from on the Tangram class representing roles.
+The name of the field to retrieve the name of the role from on the Tangram class representing roles. Note that if this configuration parameter isn't supplied,
+then the list returned by the method call to role_relation will be used directly.
 
 =back
 
@@ -231,9 +248,38 @@ the user to restore.
 Delegates to the L<Catalyst::Authentication::Store::Tangram::User->supports|Catalyst::Authentication::Store::Tangram::User#supports> 
 method.
 
+=head2 user_results_filter
+
+This is a Perl CODE ref that can be used to filter out multiple results
+from your Tangram query. In theory, your Tangram query should only return one 
+result and find_user() will throw an exception if it encounters more than one 
+result. However, if you have, for whatever reason, a legitimate reason for 
+returning multiple search results from your Tangram query, use 
+C<user_results_filter> to filter out the Tangram entries you do not want 
+considered. Your CODE ref should expect a single argument, an instance of
+your Tangram user object, and it should return exactly one value, which is 
+used as a true/false.
+
+Example:
+
+ user_results_filter => sub {
+                          my $obj = shift;
+                            $obj->permissions =~ /catalystapp/ ? 1 : 0
+                        }
+
+Note: The above example is B<not> a best practice method for storing roles
+against a user, you really want a L<Tangram::Type::Array::FromMany>
+
 =head2 lookup_roles
 
 Returns a list of roles that this user is authorised for.
+
+Note that this method will call the I<role_relation> method on the I<user_class>, 
+not on the I<tangram_user_class> directly. This can therefore be used to add
+a custom role lookup without changing your underlying model class lookup by 
+sub-classing I<Catalyst::Authentication::Storage::Tangram::User>, and adding
+the custom lookup there (then setting I<role_relation> and I<user_class>
+appropriately. 
 
 =head1 SEE ALSO
 
@@ -246,6 +292,9 @@ L<Catalyst::Authentication::Store>
 Tomas Doran, <bobtfish at bobtfish dot net>
 
 With thanks to state51, my employer, for giving me the time to work on this.
+
+Various ideas stolen from other Catalyst::Authentication modules by other
+authors.
 
 =head1 BUGS
 

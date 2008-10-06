@@ -2,6 +2,8 @@ package Catalyst::Authentication::Store::Tangram::User;
 use strict;
 use warnings;
 use base qw/Catalyst::Authentication::User/;
+use Carp qw/confess/;
+use Scalar::Util qw/blessed/;
 
 use overload '""' => sub { shift->id }, fallback => 1;
 
@@ -41,6 +43,8 @@ sub AUTOLOAD {
 
 	return if $method eq "DESTROY";
 	
+    confess("Could not call method $method on tangram class " . 
+        blessed($self->_tangram)) unless $self->_tangram->can($method);
 	$self->_tangram->$method;
 }
 
