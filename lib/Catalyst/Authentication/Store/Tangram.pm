@@ -6,7 +6,7 @@ use Scalar::Util qw/blessed/;
 use Catalyst::Authentication::Store::Tangram::User;
 use Catalyst::Utils ();
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 BEGIN {
     __PACKAGE__->mk_accessors(qw/
@@ -92,7 +92,9 @@ sub lookup_roles {
     my ($self, $user_ob) = @_;
     return undef unless $self->use_roles;
 
-    my @roles = @{ $user_ob->${\$self->role_relation}() };
+    my @roles = $user_ob->${ \$self->role_relation() }();
+    @roles = @{ $roles[0] } # Deal with either a list or listref return
+        if (1 == scalar(@roles) and 'ARRAY' eq ref($roles[0]));
     if ($self->role_name_field) {
         return map { $_->${\$self->role_name_field}() } @roles;
     }
@@ -273,6 +275,9 @@ against a user, you really want a L<Tangram::Type::Array::FromMany>
 =head2 lookup_roles
 
 Returns a list of roles that this user is authorised for.
+
+Calls the method specified by the role_relation configuration key, and expects
+either a list, or a reference to an array of roles to be returned.
 
 Note that this method will call the I<role_relation> method on the I<user_class>, 
 not on the I<tangram_user_class> directly. This can therefore be used to add

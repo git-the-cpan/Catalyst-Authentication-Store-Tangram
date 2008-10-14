@@ -26,4 +26,4 @@ requires:
   Catalyst::Runtime: 5.70
   Class::Accessor::Fast: 0
   Tangram: 2.09
-version: 0.004
+version: 0.005

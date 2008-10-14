@@ -12,3 +12,5 @@
 * Test returning text list of roles.
 * Make it throw a hard error (rather than a warning) if you try to search
   the user by an unknown field. 
+* Test lookup_roles dealing with both a list and an array ref correctly.
+
