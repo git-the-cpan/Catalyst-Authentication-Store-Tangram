@@ -7,6 +7,7 @@ use Tangram::Relational;
 use Tangram::Storage;
 use Tangram::Type::String;
 use Tangram::Type::Array::FromMany;
+use Tangram;
 use Class::C3;
 use File::Temp qw/tempfile/;
 

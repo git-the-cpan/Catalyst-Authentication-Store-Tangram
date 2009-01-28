@@ -8,7 +8,7 @@ use Scalar::Util qw/blessed/;
 use overload '""' => sub { shift->id }, fallback => 1;
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/_tangram _storage _store/);
+    __PACKAGE__->mk_accessors(qw/_tangram _storage _store _roles/);
 }
 
 sub new {
@@ -25,7 +25,9 @@ sub id {
 
 sub roles {
     my ($self) = @_;
-    $self->_store->lookup_roles($self);
+    $self->_roles([$self->_store->lookup_roles($self)])
+        unless $self->_roles;
+    return @{ $self->_roles };
 }
 
 sub supported_features {
