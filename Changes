@@ -1,3 +1,9 @@
+0.007  2009-02-01
+  - Bump version required of Catalyst-Pugin-Authentication due to
+    CPANTS fail.
+  - Switch from Class::C3 to MRO::Compat in the test suite for perl 5.10
+  - Remove use of ok.pm from the test suite.
+
 0.006  2009-01-28
   - Cache the result of role lookups on the user object, as
     doing this lookup can be expensive.

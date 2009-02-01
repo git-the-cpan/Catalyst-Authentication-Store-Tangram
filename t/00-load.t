@@ -3,6 +3,6 @@ use strict;
 use warnings;
 use Test::More tests => 2;
 
-use ok 'Catalyst::Authentication::Store::Tangram';
-use ok 'Catalyst::Authentication::Store::Tangram::User';
+use_ok 'Catalyst::Authentication::Store::Tangram';
+use_ok 'Catalyst::Authentication::Store::Tangram::User';
 

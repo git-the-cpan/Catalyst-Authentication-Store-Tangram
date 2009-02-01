@@ -1,12 +1,14 @@
 package Users;
 use strict;
 use warnings;
+use Carp qw/confess/;
 use base qw/Class::Accessor/;
 
 __PACKAGE__->mk_accessors(qw/username password groups/);
 
 sub new {
     my ($class, %p) = @_;
+    confess("MOOSE") unless ($p{otherfield});
     bless { %p }, $class;
 }
 

@@ -8,7 +8,7 @@ use Tangram::Storage;
 use Tangram::Type::String;
 use Tangram::Type::Array::FromMany;
 use Tangram;
-use Class::C3;
+use MRO::Compat;
 use File::Temp qw/tempfile/;
 
 BEGIN {
@@ -27,7 +27,7 @@ sub COMPONENT {
         classes => [
             Users => {
                 fields => {
-                    string => [qw/username password/],
+                    string => [qw/username password otherfield/],
                     array  => { groups => 'Roles' },
                 },
             },
@@ -44,7 +44,7 @@ sub COMPONENT {
         $self->schema, @dsn
     );
     my @groups = map { Roles->new(name => $_) } qw/role1 role2 role3/;
-    my $test_user = Users->new(username => 'testuser', password => 'testpass', groups => \@groups);
+    my $test_user = Users->new(username => 'testuser', password => 'testpass', groups => \@groups, otherfield => 'baaa');
     $self->storage->insert($test_user); # Cascade inserts all the groups too.
     return $self;
 }

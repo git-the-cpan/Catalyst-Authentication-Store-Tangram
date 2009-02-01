@@ -3,15 +3,14 @@ abstract: 'A storage class for Catalyst authentication from a class stored in Ta
 author:
   - 'Tomas Doran, <bobtfish at bobtfish dot net>'
 build_requires:
-  Class::C3: 0
   DBD::SQLite: 0
   DBI: 0
   File::Temp: 0
+  MRO::Compat: 0
   Test::More: 0
   Test::WWW::Mechanize::Catalyst: 0
-  ok: 0
 distribution_type: module
-generated_by: 'Module::Install version 0.78'
+generated_by: 'Module::Install version 0.77'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,11 +21,11 @@ no_index:
     - inc
     - t
 requires:
-  Catalyst::Plugin::Authentication: 0.10001
+  Catalyst::Plugin::Authentication: 0.10003
   Catalyst::Runtime: 5.70
   Class::Accessor::Fast: 0
   Tangram: 2.09
 resources:
   license: http://dev.perl.org/licenses/
   repository: https://badger.state51.co.uk/svn/cpan/Catalyst-Authentication-Store-Tangram
-version: 0.006
+version: 0.007
