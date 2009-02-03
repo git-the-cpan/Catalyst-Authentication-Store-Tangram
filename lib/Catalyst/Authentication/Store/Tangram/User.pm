@@ -39,23 +39,24 @@ sub supported_features {
 }
 
 sub AUTOLOAD {
-	my $self = shift;
-	
-	( my $method ) = ( our $AUTOLOAD =~ /([^:]+)$/ );
+    my $self = shift;
 
-	return if $method eq "DESTROY";
-	
+    ( my $method ) = ( our $AUTOLOAD =~ /([^:]+)$/ );
+
+    return if $method eq "DESTROY";
+
     confess("Could not call method $method on tangram class " . 
         blessed($self->_tangram)) unless $self->_tangram->can($method);
-	$self->_tangram->$method;
+    $self->_tangram->$method;
 }
 
 1;
 
 =head1 NAME
 
-Catalyst::Authentication::Store::Tangram::User - A thin adaptor 
-to adapt any Tangram class to behave as needed by L<Catalyst::Authentication::User>
+Catalyst::Authentication::Store::Tangram::User - A thin adaptor
+to adapt any Tangram class to behave as needed by
+L<Catalyst::Authentication::User>
 
 =head1 SYNOPSIS
 
@@ -63,13 +64,14 @@ to adapt any Tangram class to behave as needed by L<Catalyst::Authentication::Us
     $c->user->get('email_address'); # Retrieve value from the underlying Tangram object.
     $c->user->get_object; # Get the underlying Tangram object yourself.
 
-=head1 DESCRIPTION 
+=head1 DESCRIPTION
 
-The Catalyst::Authentication::Store::Tangram::User class encapsulates any Tangram class in the 
-L<Catalyst::Authentication::User> interface. An instance of it will be returned
-by C<< $c->user >> when using L<Catalyst::Authentication::Store::Tangram>. Methods 
-not defined in this module are passed through to the Tangram object. The
-object stringifies to the Tangram ID.
+The Catalyst::Authentication::Store::Tangram::User class encapsulates any
+Tangram class in the L<Catalyst::Authentication::User> interface. An instance
+of it will be returned by C<< $c->user >> when using
+L<Catalyst::Authentication::Store::Tangram>. Methods not defined in this module
+are passed through to the Tangram object. The object stringifies to the
+Tangram ID.
 
 =head1 METHODS
 
@@ -109,4 +111,8 @@ Please report bugs through the rt.cpan.org bug tracker.
 
 Copyright (c) 2008, state51. Some rights reserved.
 
-This module is free software; you can use, redistribute, and modify it under the same terms as Perl 5.8.x.
+This module is free software; you can use, redistribute, and modify it under
+the same terms as Perl 5.8.x.
+
+=cut
+

@@ -10,7 +10,7 @@ build_requires:
   Test::More: 0
   Test::WWW::Mechanize::Catalyst: 0
 distribution_type: module
-generated_by: 'Module::Install version 0.77'
+generated_by: 'Module::Install version 0.78'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -28,4 +28,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: https://badger.state51.co.uk/svn/cpan/Catalyst-Authentication-Store-Tangram
-version: 0.007
+version: 0.008

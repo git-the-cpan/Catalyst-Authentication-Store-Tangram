@@ -1,3 +1,8 @@
+0.008  2009-02-03
+  - Fix accidental commit in the tests with the last release which was
+    causing test fails (thanks again CPANTS)
+  - Normalise whitespace in the POD
+
 0.007  2009-02-01
   - Bump version required of Catalyst-Pugin-Authentication due to
     CPANTS fail.
@@ -9,17 +14,17 @@
     doing this lookup can be expensive.
 
 0.005  2008-10-14
-  - Make lookup_roles deal correctly with the call to 
-    $user_ob->$role_relation() returning either a list 
+  - Make lookup_roles deal correctly with the call to
+    $user_ob->$role_relation() returning either a list
     of roles, or a reference to a list of roles.
 
 0.004  2008-10-06
-  - Make sure classes specified in tangram_user_class 
+  - Make sure classes specified in tangram_user_class
     and user_class are loaded when constructing.
-  - Make role_name_field optional, for in the case where 
-    you have a method which returns a plain text list of 
+  - Make role_name_field optional, for in the case where
+    you have a method which returns a plain text list of
     roles, rather than a collection of Tangram objects.
-  - Steal the user_results_filter idea from 
+  - Steal the user_results_filter idea from
     Catalyst::Authentication::Store::LDAP
 
 0.003  2008-10-02

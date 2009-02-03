@@ -8,7 +8,6 @@ __PACKAGE__->mk_accessors(qw/username password groups/);
 
 sub new {
     my ($class, %p) = @_;
-    confess("MOOSE") unless ($p{otherfield});
     bless { %p }, $class;
 }
 
