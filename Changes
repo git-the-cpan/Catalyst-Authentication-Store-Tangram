@@ -1,3 +1,6 @@
+0.009  2009-02-18
+  - Re-release as I sent 0.008 to backpan accidentally, oops.
+
 0.008  2009-02-03
   - Fix accidental commit in the tests with the last release which was
     causing test fails (thanks again CPANTS)
