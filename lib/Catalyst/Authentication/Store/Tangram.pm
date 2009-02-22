@@ -6,7 +6,7 @@ use Scalar::Util qw/blessed/;
 use Catalyst::Authentication::Store::Tangram::User;
 use Catalyst::Utils ();
 
-our $VERSION = '0.009';
+our $VERSION = '0.010';
 
 __PACKAGE__->mk_accessors(qw/
     tangram_model

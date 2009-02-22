@@ -1,14 +1,11 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 2;
 
 # setup library path
 use FindBin qw($Bin);
 use lib "$Bin/lib";
-
-# make sure testapp works
-use ok 'TestApp';
 
 # a live test against TestApp, the test application
 use Test::WWW::Mechanize::Catalyst 'TestApp';

@@ -18,10 +18,10 @@ t/00-load.t
 t/kwalitee.t
 t/lib/script/testapp_server.pl
 t/lib/script/testapp_test.pl
+t/lib/Users.pm
 t/lib/TestApp.pm
 t/lib/TestApp/Controller/Root.pm
 t/lib/TestApp/Model/Tangram.pm
-t/lib/Users.pm
 t/live-test.t
 t/pod-coverage.t
 t/pod.t

@@ -1,3 +1,6 @@
+0.010  2009-02-22
+  - Really remove ok.pm from the test suite this time.
+
 0.009  2009-02-18
   - Re-release as I sent 0.008 to backpan accidentally, oops.
 
